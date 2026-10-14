@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>阳老金收益对比测算 · 眉山</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: #f2f5fa;
+    color: #1f2937;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 48px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #0ea5e9 100%);
+    border-radius: 18px;
+    padding: 26px 26px 24px;
+    color: #fff;
+    margin-bottom: 18px;
+    box-shadow: 0 12px 30px -14px rgba(37, 99, 235, .7);
+  }
+  .hero h1 { margin: 0 0 6px; font-size: 23px; letter-spacing: .5px; }
+  .hero p { margin: 0; opacity: .88; font-size: 13.5px; }
+
+  /* ---------- Card ---------- */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #eef2f7;
+    box-shadow: 0 2px 10px -4px rgba(15, 23, 42, .12);
+  }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .card-head h2 {
+    font-size: 16px; margin: 0; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; color: #0f172a;
+  }
+  .idx {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 7px;
+    background: #eff6ff; color: #2563eb;
+    font-size: 12px; font-weight: 700;
+  }
+  .hint { font-size: 12px; color: #94a3b8; }
+
+  /* ---------- Fields ---------- */
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: #64748b; }
+  .field input {
+    width: 100%; padding: 9px 11px; border-radius: 9px;
+    border: 1px solid #e2e8f0; background: #fbfcfe;
+    font-size: 15px; font-weight: 600; color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .field input:focus {
+    outline: none; border-color: #2563eb; background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+  }
+
+  /* ---------- Stats ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 10px; margin-top: 18px;
+  }
+  .stat {
+    background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+    border: 1px solid #e8eef6;
+    border-radius: 11px;
+    padding: 12px 14px;
+  }
+  .stat-label { display: block; font-size: 12px; color: #64748b; margin-bottom: 3px; }
+  .stat-value {
+    font-size: 19px; font-weight: 700; color: #0f172a;
+    font-variant-numeric: tabular-nums; letter-spacing: -.2px;
+  }
+  .stat-value em { font-style: normal; font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 3px; }
+  .stat-sub { display: block; font-size: 11.5px; color: #94a3b8; margin-top: 1px; }
+  .stat.good { background: linear-gradient(180deg, #f0fdf4, #ecfdf5); border-color: #d1fae5; }
+  .stat.good .stat-value { color: #059669; }
+
+  /* ---------- Table ---------- */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 660px; }
+  thead th {
+    background: #f8fafc; color: #475569; font-weight: 600; font-size: 12.5px;
+    text-align: left; padding: 10px 12px; border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+  tbody td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafcff; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .name { font-weight: 600; color: #0f172a; }
+  .net { font-weight: 700; color: #059669; }
+  .note { font-size: 12px; color: #64748b; }
+
+  .foot {
+    text-align: center; font-size: 12px; color: #94a3b8;
+    margin-top: 22px; line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <h1>阳老金收益对比测算</h1>
+    <p>眉山 · 户用光伏 25 年收益测算工具</p>
+  </header>
+
+  <!-- ===== 1 测算基础 ===== -->
+  <section class="card">
+    <div class="card-head">
+      <h2><span class="idx">1</span>测算基础</h2>
+      <span class="hint">修改数值后自动重算</span>
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label for="power">组件功率（W/块）</label>
+        <input id="power" type="number" value="785" step="5" min="0" />
+      </div>
+      <div class="field">
+        <label for="count">安装数量（块）</label>
+        <input id="count" type="number" value="60" step="1" min="0" />
+      </div>
+      <div class="field">
+        <label for="hours">年均等效光照（小时）</label>
+        <input id="hours" type="number" value="900" step="10" min="0" />
+      </div>
+      <div class="field">
+        <label for="years">测算周期（年）</label>
+        <input id="years" type="number" value="25" step="1" min="1" />
+      </div>
+      <div class="field">
+        <label for="priceA">电价口径 A（元/kWh）</label>
+        <input id="priceA" type="number" value="0.373" step="0.001" min="0" />
+      </div>
+      <div class="field">
+        <label for="ratioB">口径 B 折算比例</label>
+        <input id="ratioB" type="number" value="0.87" step="0.01" min="0" max="1" />
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <!-- ===== 2 模式售价 ===== -->
+  <section class="card">
+    <div class="card-head">
+      <h2><span class="idx">2</span>模式售价设置</h2>
+      <span class="hint">单位：元/W</span>
+    </div>
+    <div class="fields">
+      <div class="field">
+        <label for="fullXiao">全款 · 小阳楼</label>
+        <input id="fullXiao" type="number" value="2.35" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="fullYue">全款 · 悦阳亭</label>
+        <input id="fullYue" type="number" value="2.45" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="loanXiao">助融 · 小阳楼</label>
+        <input id="loanXiao" type="number" value="2.30" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="loanYue">助融 · 悦阳亭</label>
+        <input id="loanYue" type="number" value="2.40" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="rentPerPanel">传统租赁租金（元/块·年）</label>
+        <input id="rentPerPanel" type="number" value="10" step="1" min="0" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3 三种模式对比 ===== -->
+  <section class="card">
+    <div class="card-head">
+      <h2><span class="idx">3</span>三种模式 · 农户 25 年净收益对比</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>模式</th>
+            <th class="num">农户投入</th>
+            <th class="num">终端售价</th>
+            <th class="num">净收益（口径 A）</th>
+            <th class="num">净收益（口径 B）</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody id="modeBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 4 助融还款明细 ===== -->
+  <section class="card">
+    <div class="card-head">
+      <h2><span class="idx">4</span>助融模式还款明细</h2>
+      <span class="hint">每年发电收益还贷，可提前还清</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>产品</th>
+            <th class="num">利率</th>
+            <th>电价口径</th>
+            <th class="num">终端售价（元/W）</th>
+            <th class="num">还清年限</th>
+            <th class="num">累计利息</th>
+            <th class="num">还本付息总额</th>
+            <th class="num">25 年净收益</th>
+          </tr>
+        </thead>
+        <tbody id="loanBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== 5 代理商收益 ===== -->
+  <section class="card">
+    <div class="card-head">
+      <h2><span class="idx">5</span>代理商收益（渠道结算价 · 眉山）</h2>
+    </div>
+    <div class="fields" style="margin-bottom:16px">
+      <div class="field">
+        <label for="agLeaseXiao">户用 · 小阳楼（元/W）</label>
+        <input id="agLeaseXiao" type="number" value="0.80" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="agLeaseXiaoPub">户用 · 小阳楼（公共资源）</label>
+        <input id="agLeaseXiaoPub" type="number" value="0.70" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="agLeaseYue">户用 · 悦阳亭（元/W）</label>
+        <input id="agLeaseYue" type="number" value="0.70" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="agFull">阳老金 · 全款（元/W）</label>
+        <input id="agFull" type="number" value="0.90" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label for="agLoan">阳老金 · 助融（元/W）</label>
+        <input id="agLoan" type="number" value="0.80" step="0.01" min="0" />
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>产品 / 渠道</th>
+            <th class="num">结算价（元/W）</th>
+            <th class="num">结算收入（单户）</th>
+          </tr>
+        </thead>
+        <tbody id="agentBody"></tbody>
+      </table>
+    </div>
+    <p class="note" style="margin:12px 0 0">注：结算收入 = 结算价 × 装机容量；代理商利润 = 结算收入 − 自身施工/物料成本（未细算）。</p>
+  </section>
+
+  <footer class="foot">
+    本测算基于给定参数估算，实际收益以当地光照、电价政策、银行审批利率及实际发电量为准。
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var val = function (id) {
+    var v = parseFloat($(id).value);
+    return isNaN(v) ? 0 : v;
+  };
+  var n0 = function (n) {
+    return (typeof n === 'number' && isFinite(n))
+      ? Math.round(n).toLocaleString('zh-CN') : '—';
+  };
+  var wan = function (n) {
+    return (typeof n === 'number' && isFinite(n)) ? (n / 10000).toFixed(2) + ' 万' : '—';
+  };
+
+  /* ---------- 贷款测算：每年用全部发电收益还贷，先息后本 ---------- */
+  function calcLoan(principal, rate, annualPay, maxYears) {
+    maxYears = maxYears || 40;
+    if (principal <= 0) {
+      return { ok: true, years: 0, totalInterest: 0, totalPay: 0 };
+    }
+    // 将百分比利率转换为小数（如 3.8 转为 0.038）
+    rate = rate / 100;
+
+    var balance = principal, totalInterest = 0, y = 0;
+    while (balance > 0.01 && y < maxYears) {
+      var interest = balance * rate;
+      if (annualPay <= interest) {
+        return { ok: false, years: Infinity, totalInterest: Infinity, totalPay: Infinity };
+      }
+      y++;
+      var principalPart = annualPay - interest;
+      if (principalPart >= balance) principalPart = balance;
+      balance -= principalPart;
+      totalInterest += interest;
+    }
+    return { ok: true, years: y, totalInterest: totalInterest, totalPay: principal + totalInterest };
+  }
+
+  /* ---------- 主渲染 ---------- */
+  function render() {
+    /* 读取参数 */
+    var power       = val('power');
+    var count       = val('count');
+    var hours       = val('hours');
+    var years       = val('years') || 25;
+    var priceA      = val('priceA');
+    var ratioB      = val('ratioB');
+    var rentPanel   = val('rentPerPanel');
+    var fullXiao    = val('fullXiao');
+    var fullYue     = val('fullYue');
+    var loanXiao    = val('loanXiao');
+    var loanYue     = val('loanYue');
+
+    /* 核心换算 */
+    var capacityW  = power * count;              // W
+    var capacityKW = capacityW / 1000;           // kW
+    var annualKWh  = capacityKW * hours;         // kWh/年
+    var priceB     = priceA * ratioB;
+    var revA       = annualKWh * priceA;         // 年收益 口径A
+    var revB       = annualKWh * priceB;         // 年收益 口径B
+    var totalA     = revA * years;
+    var totalB     = revB * years;
+
+    /* ===== 基础测算结果 ===== */
+    $('stats').innerHTML =
+      '<div class="stat"><span class="stat-label">总装机容量</span>' +
+        '<span class="stat-value">' + capacityKW.toFixed(2) + '<em>kW</em></span></div>' +
+      '<div class="stat"><span class="stat-label">年发电量</span>' +
+        '<span class="stat-value">' + n0(annualKWh) + '<em>kWh</em></span></div>' +
+      '<div class="stat"><span class="stat-label">年收益 A（' + priceA + ' 元/kWh）</span>' +
+        '<span class="stat-value">' + n0(revA) + '<em>元</em></span></div>' +
+      '<div class="stat"><span class="stat-label">年收益 B（' + priceB.toFixed(5) + ' 元/kWh）</span>' +
+        '<span class="stat-value">' + n0(revB) + '<em>元</em></span></div>' +
+      '<div class="stat good"><span class="stat-label">' + years + ' 年收益 A</span>' +
+        '<span class="stat-value">' + n0(totalA) + '<em>元</em></span>' +
+        '<span class="stat-sub">≈ ' + wan(totalA) + '元</span></div>' +
+      '<div class="stat good"><span class="stat-label">' + years + ' 年收益 B</span>' +
+        '<span class="stat-value">' + n0(totalB) + '<em>元</em></span>' +
+        '<span class="stat-sub">≈ ' + wan(totalB) + '元</span></div>';
+
+    /* ===== 模式对比 ===== */
+    var leaseNet = rentPanel * count * years;
+    var modes = [];
+
+    modes.push({
+      name: '传统租赁',
+      investTxt: '0 元',
+      priceTxt: rentPanel + ' 元/块·年',
+      netA: leaseNet,
+      netB: leaseNet,
+      note: '每块 ' + rentPanel + ' 元/年租金'
+    });
+
+    function makeFull(label, pricePerW) {
+      var invest = pricePerW * capacityW;
+      return {
+        name: '全款 · ' + label,
+        investTxt: n0(invest) + ' 元',
+        priceTxt: pricePerW.toFixed(2),
+        netA: totalA - invest,
+        netB: totalB - invest,
+        note: '约 ' + (invest / revA).toFixed(1) + ' / ' + (invest / revB).toFixed(1) + ' 年回本'
+      };
+    }
+
+    function makeLoan(label, pricePerW, rate) {
+      var principal = pricePerW * capacityW;
+      var la = calcLoan(principal, rate, revA);
+      var lb = calcLoan(principal, rate, revB);
+      return {
+        name: '助融 · ' + label + '（' + rate.toFixed(1) + '%）',
+        investTxt: '0（贷款）',
+        priceTxt: pricePerW.toFixed(2),
+        netA: la.ok ? totalA - la.totalPay : NaN,
+        netB: lb.ok ? totalB - lb.totalPay : NaN,
+        note: (la.ok ? la.years + ' 年还清' : '无法还清') + '（A）/ ' +
+              (lb.ok ? lb.years + ' 年还清' : '无法还清') + '（B）'
+      };
+    }
+
+    modes.push(makeFull('小阳楼', fullXiao));
+    modes.push(makeFull('悦阳亭', fullYue));
+    modes.push(makeLoan('小阳楼', loanXiao, 3.8));
+    modes.push(makeLoan('小阳楼', loanXiao, 3.3));
+    modes.push(makeLoan('悦阳亭', loanYue, 3.8));
+    modes.push(makeLoan('悦阳亭', loanYue, 3.3));
+
+    $('modeBody').innerHTML = modes.map(function (m) {
+      return '<tr>' +
+        '<td class="name">' + m.name + '</td>' +
+        '<td class="num">' + m.investTxt + '</td>' +
+        '<td class="num">' + m.priceTxt + '</td>' +
+        '<td class="num net">' + n0(m.netA) + '</td>' +
+        '<td class="num net">' + n0(m.netB) + '</td>' +
+        '<td class="note">' + m.note + '</td>' +
+      '</tr>';
+    }).join('');
+
+    /* ===== 助融还款明细 ===== */
+    var loanDefs = [
+      { name: '小阳楼', price: loanXiao, rate: 3.8 },
+      { name: '小阳楼', price: loanXiao, rate: 3.3 },
+      { name: '悦阳亭', price: loanYue,  rate: 3.8 },
+      { name: '悦阳亭', price: loanYue,  rate: 3.3 }
+    ];
+    var loanRows = [];
+
+    loanDefs.forEach(function (d) {
+      var principal = d.price * capacityW;
+      [
+        { label: 'A（' + priceA + '）', pay: revA, total: totalA },
+        { label: 'B（' + priceB.toFixed(5) + '）', pay: revB, total: totalB }
+      ].forEach(function (c) {
+        var r = calcLoan(principal, d.rate, c.pay);
+        loanRows.push(
+          '<tr>' +
+            '<td class="name">' + d.name + '</td>' +
+            '<td class="num">' + d.rate.toFixed(1) + '%</td>' +
+            '<td>' + c.label + '</td>' +
+            '<td class="num">' + d.price.toFixed(2) + '</td>' +
+            '<td class="num">' + (r.ok ? r.years + ' 年' : '—') + '</td>' +
+            '<td class="num">' + (r.ok ? n0(r.totalInterest) : '—') + '</td>' +
+            '<td class="num">' + (r.ok ? n0(r.totalPay) : '—') + '</td>' +
+            '<td class="num net">' + (r.ok ? n0(c.total - r.totalPay) : '—') + '</td>' +
+          '</tr>'
+        );
+      });
+    });
+    $('loanBody').innerHTML = loanRows.join('');
+
+    /* ===== 代理商收益 ===== */
+    var agents = [
+      { label: '户用 · 小阳楼', id: 'agLeaseXiao' },
+      { label: '户用 · 小阳楼（公共资源）', id: 'agLeaseXiaoPub' },
+      { label: '户用 · 悦阳亭', id: 'agLeaseYue' },
+      { label: '阳老金 · 全款', id: 'agFull' },
+      { label: '阳老金 · 助融', id: 'agLoan' }
+    ];
+    $('agentBody').innerHTML = agents.map(function (a) {
+      var p = val(a.id);
+      return '<tr>' +
+        '<td class="name">' + a.label + '</td>' +
+        '<td class="num">' + p.toFixed(2) + '</td>' +
+        '<td class="num net">' + n0(p * capacityW) + ' 元</td>' +
+      '</tr>';
+    }).join('');
+
+    // 结论与建议部分已按需求删除
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  var inputs = document.querySelectorAll('input');
+  for (var i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('input', render);
+    inputs[i].addEventListener('change', render);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
