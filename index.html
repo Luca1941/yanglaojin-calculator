@@ -115,6 +115,64 @@
     text-align: center; font-size: 12px; color: #94a3b8;
     margin-top: 22px; line-height: 1.8;
   }
+
+  /* =========================================================
+     移动端适配：将表格转换为卡片布局（关键新增部分）
+     ========================================================= */
+  @media (max-width: 768px) {
+    .table-wrap { overflow-x: visible; }
+    .table-wrap table,
+    .table-wrap thead,
+    .table-wrap tbody,
+    .table-wrap th,
+    .table-wrap td,
+    .table-wrap tr {
+      display: block;
+    }
+    .table-wrap thead { display: none; } /* 隐藏表头 */
+
+    .table-wrap tr {
+      margin-bottom: 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      padding: 6px 0;
+      box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06);
+    }
+
+    .table-wrap td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: right;
+      font-size: 13.5px;
+    }
+    .table-wrap td:last-child { border-bottom: none; }
+
+    /* 用 ::before 动态显示每个字段的标签（替代表头） */
+    .table-wrap td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #64748b;
+      margin-right: 16px;
+      flex-shrink: 0;
+      font-size: 12.5px;
+      text-align: left;
+    }
+
+    /* 每张卡片的首行（模式名/产品名）作为卡片标题，无需标签，字号加大 */
+    .table-wrap td.name {
+      font-size: 15.5px;
+      color: #0f172a;
+      border-bottom: 2px solid #eff6ff;
+      padding-top: 12px;
+      padding-bottom: 10px;
+      justify-content: flex-start;
+    }
+    .table-wrap td.name::before { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -419,11 +477,11 @@
     $('modeBody').innerHTML = modes.map(function (m) {
       return '<tr>' +
         '<td class="name">' + m.name + '</td>' +
-        '<td class="num">' + m.investTxt + '</td>' +
-        '<td class="num">' + m.priceTxt + '</td>' +
-        '<td class="num net">' + n0(m.netA) + '</td>' +
-        '<td class="num net">' + n0(m.netB) + '</td>' +
-        '<td class="note">' + m.note + '</td>' +
+        '<td class="num" data-label="农户投入">' + m.investTxt + '</td>' +
+        '<td class="num" data-label="终端售价">' + m.priceTxt + '</td>' +
+        '<td class="num net" data-label="净收益（口径 A）">' + n0(m.netA) + '</td>' +
+        '<td class="num net" data-label="净收益（口径 B）">' + n0(m.netB) + '</td>' +
+        '<td class="note" data-label="说明">' + m.note + '</td>' +
       '</tr>';
     }).join('');
 
@@ -446,13 +504,13 @@
         loanRows.push(
           '<tr>' +
             '<td class="name">' + d.name + '</td>' +
-            '<td class="num">' + d.rate.toFixed(1) + '%</td>' +
-            '<td>' + c.label + '</td>' +
-            '<td class="num">' + d.price.toFixed(2) + '</td>' +
-            '<td class="num">' + (r.ok ? r.years + ' 年' : '—') + '</td>' +
-            '<td class="num">' + (r.ok ? n0(r.totalInterest) : '—') + '</td>' +
-            '<td class="num">' + (r.ok ? n0(r.totalPay) : '—') + '</td>' +
-            '<td class="num net">' + (r.ok ? n0(c.total - r.totalPay) : '—') + '</td>' +
+            '<td class="num" data-label="利率">' + d.rate.toFixed(1) + '%</td>' +
+            '<td data-label="电价口径">' + c.label + '</td>' +
+            '<td class="num" data-label="终端售价（元/W）">' + d.price.toFixed(2) + '</td>' +
+            '<td class="num" data-label="还清年限">' + (r.ok ? r.years + ' 年' : '—') + '</td>' +
+            '<td class="num" data-label="累计利息">' + (r.ok ? n0(r.totalInterest) : '—') + '</td>' +
+            '<td class="num" data-label="还本付息总额">' + (r.ok ? n0(r.totalPay) : '—') + '</td>' +
+            '<td class="num net" data-label="25 年净收益">' + (r.ok ? n0(c.total - r.totalPay) : '—') + '</td>' +
           '</tr>'
         );
       });
@@ -471,8 +529,8 @@
       var p = val(a.id);
       return '<tr>' +
         '<td class="name">' + a.label + '</td>' +
-        '<td class="num">' + p.toFixed(2) + '</td>' +
-        '<td class="num net">' + n0(p * capacityW) + ' 元</td>' +
+        '<td class="num" data-label="结算价（元/W）">' + p.toFixed(2) + '</td>' +
+        '<td class="num net" data-label="结算收入（单户）">' + n0(p * capacityW) + ' 元</td>' +
       '</tr>';
     }).join('');
 
