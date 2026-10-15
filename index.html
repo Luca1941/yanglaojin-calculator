@@ -120,18 +120,18 @@
      移动端适配：将表格转换为卡片布局（修复溢出问题）
      ========================================================= */
   @media (max-width: 768px) {
-    .card { padding: 16px; } /* 减小卡片内边距，给内容留更多空间 */
+    .card { padding: 16px; }
     .table-wrap { overflow-x: visible; }
     
     .table-wrap table {
-      min-width: 0; /* 关键修复：覆盖掉原本的 660px 最小宽度 */
+      min-width: 0;
       width: 100%;
     }
-    .table-wrap thead { display: none; } /* 隐藏表头 */
+    .table-wrap thead { display: none; }
 
     .table-wrap tr {
       display: block;
-      width: 100%; /* 确保卡片不超宽 */
+      width: 100%;
       margin-bottom: 14px;
       border: 1px solid #e2e8f0;
       border-radius: 12px;
@@ -144,9 +144,9 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      flex-wrap: wrap; /* 允许内容换行 */
-      gap: 8px; /* 标签与数值的间距 */
-      width: 100%; /* 确保单元格不超宽 */
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
       padding: 10px 14px;
       border-bottom: 1px solid #f1f5f9;
       text-align: right;
@@ -154,25 +154,22 @@
     }
     .table-wrap td:last-child { border-bottom: none; }
 
-    /* 用 ::before 动态显示每个字段的标签 */
     .table-wrap td::before {
       content: attr(data-label);
       font-weight: 600;
       color: #64748b;
-      margin-right: auto; /* 将标签推到左边，数值推到右边 */
+      margin-right: auto;
       font-size: 12.5px;
       text-align: left;
       flex-shrink: 0;
       max-width: 100%;
     }
 
-    /* 确保数值部分不会溢出 */
     .table-wrap td > * {
       text-align: right;
       word-break: break-all;
     }
 
-    /* 每张卡片的首行（模式名/产品名）作为卡片标题 */
     .table-wrap td.name {
       font-size: 15.5px;
       color: #0f172a;
@@ -219,12 +216,16 @@
         <input id="years" type="number" value="25" step="1" min="1" />
       </div>
       <div class="field">
-        <label for="priceA">电价口径 A（元/kWh）</label>
+        <label for="priceA">机制电价（元/kWh）</label>
         <input id="priceA" type="number" value="0.373" step="0.001" min="0" />
       </div>
       <div class="field">
         <label for="ratioB">口径 B 折算比例</label>
-        <input id="ratioB" type="number" value="0.8" step="0.01" min="0" max="1" />
+        <input id="ratioB" type="number" value="0.80" step="0.01" min="0" max="1" />
+      </div>
+      <div class="field">
+        <label for="marketPrice">市场电价（元/kWh）</label>
+        <input id="marketPrice" type="number" value="0.2" step="0.01" min="0" />
       </div>
     </div>
     <div class="stats" id="stats"></div>
@@ -333,6 +334,10 @@
         <label for="agLoan">阳老金 · 助融（元/W）</label>
         <input id="agLoan" type="number" value="0.80" step="0.01" min="0" />
       </div>
+      <div class="field">
+        <label for="installFee">初装费（元/块）</label>
+        <input id="installFee" type="number" value="50" step="1" min="0" />
+      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -341,12 +346,14 @@
             <th>产品 / 渠道</th>
             <th class="num">结算价（元/W）</th>
             <th class="num">结算收入（单户）</th>
+            <th class="num">初装费（总）</th>
+            <th class="num">净收益（扣初装费）</th>
           </tr>
         </thead>
         <tbody id="agentBody"></tbody>
       </table>
     </div>
-    <p class="note" style="margin:12px 0 0">注：结算收入 = 结算价 × 装机容量；代理商利润 = 结算收入 − 自身施工/物料成本（未细算）。</p>
+    <p class="note" style="margin:12px 0 0">注：结算收入 = 结算价 × 装机容量；初装费 = 初装费单价 × 安装板数；净收益 = 结算收入 − 初装费（未扣自身施工/物料成本）。</p>
   </section>
 
   <footer class="foot">
@@ -378,8 +385,7 @@
     if (principal <= 0) {
       return { ok: true, years: 0, totalInterest: 0, totalPay: 0 };
     }
-    // 将百分比利率转换为小数（如 3.8 转为 0.038）
-    rate = rate / 100;
+    rate = rate / 100; // 将百分比利率转换为小数
 
     var balance = principal, totalInterest = 0, y = 0;
     while (balance > 0.01 && y < maxYears) {
@@ -405,17 +411,20 @@
     var years       = val('years') || 25;
     var priceA      = val('priceA');
     var ratioB      = val('ratioB');
+    var marketPrice = val('marketPrice');
     var rentPanel   = val('rentPerPanel');
     var fullXiao    = val('fullXiao');
     var fullYue     = val('fullYue');
     var loanXiao    = val('loanXiao');
     var loanYue     = val('loanYue');
+    var installFee  = val('installFee'); // 初装费 元/块
 
     /* 核心换算 */
     var capacityW  = power * count;              // W
     var capacityKW = capacityW / 1000;           // kW
     var annualKWh  = capacityKW * hours;         // kWh/年
-    var priceB     = priceA * ratioB;
+    // 口径B有效电价 = 机制电价A × 比例B + 市场电价 × (1 - 比例B)
+    var priceB     = priceA * ratioB + marketPrice * (1 - ratioB);
     var revA       = annualKWh * priceA;         // 年收益 口径A
     var revB       = annualKWh * priceB;         // 年收益 口径B
     var totalA     = revA * years;
@@ -448,7 +457,7 @@
       priceTxt: rentPanel + ' 元/块·年',
       netA: leaseNet,
       netB: leaseNet,
-      note: '每块 ' + rentPanel + ' 元/年租金'
+      note: '每块 ' + rentPanel + ' 元/年租金；初装费50元/块由代理商支出'
     });
 
     function makeFull(label, pricePerW) {
@@ -528,7 +537,8 @@
     });
     $('loanBody').innerHTML = loanRows.join('');
 
-    /* ===== 代理商收益 ===== */
+    /* ===== 代理商收益（增加初装费扣除） ===== */
+    var totalInstallFee = installFee * count; // 总初装费 = 初装费单价 × 安装板数
     var agents = [
       { label: '户用 · 小阳楼', id: 'agLeaseXiao' },
       { label: '户用 · 小阳楼（公共资源）', id: 'agLeaseXiaoPub' },
@@ -538,10 +548,14 @@
     ];
     $('agentBody').innerHTML = agents.map(function (a) {
       var p = val(a.id);
+      var settleIncome = p * capacityW;          // 结算收入
+      var netAgent = settleIncome - totalInstallFee; // 扣除初装费后的净收益
       return '<tr>' +
         '<td class="name">' + a.label + '</td>' +
         '<td class="num" data-label="结算价（元/W）">' + p.toFixed(2) + '</td>' +
-        '<td class="num net" data-label="结算收入（单户）">' + n0(p * capacityW) + ' 元</td>' +
+        '<td class="num" data-label="结算收入（单户）">' + n0(settleIncome) + ' 元</td>' +
+        '<td class="num" data-label="初装费（总）">' + n0(totalInstallFee) + ' 元</td>' +
+        '<td class="num net" data-label="净收益（扣初装费）">' + n0(netAgent) + ' 元</td>' +
       '</tr>';
     }).join('');
 
