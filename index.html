@@ -227,6 +227,10 @@
         <label for="marketPrice">市场电价（元/kWh）</label>
         <input id="marketPrice" type="number" value="0.2" step="0.01" min="0" />
       </div>
+      <div class="field">
+        <label for="installFee">初装费（元/块）</label>
+        <input id="installFee" type="number" value="50" step="1" min="0" />
+      </div>
     </div>
     <div class="stats" id="stats"></div>
   </section>
@@ -334,10 +338,6 @@
         <label for="agLoan">阳老金 · 助融（元/W）</label>
         <input id="agLoan" type="number" value="0.80" step="0.01" min="0" />
       </div>
-      <div class="field">
-        <label for="installFee">初装费（元/块）</label>
-        <input id="installFee" type="number" value="50" step="1" min="0" />
-      </div>
     </div>
     <div class="table-wrap">
       <table>
@@ -346,14 +346,12 @@
             <th>产品 / 渠道</th>
             <th class="num">结算价（元/W）</th>
             <th class="num">结算收入（单户）</th>
-            <th class="num">初装费（总）</th>
-            <th class="num">净收益（扣初装费）</th>
           </tr>
         </thead>
         <tbody id="agentBody"></tbody>
       </table>
     </div>
-    <p class="note" style="margin:12px 0 0">注：结算收入 = 结算价 × 装机容量；初装费 = 初装费单价 × 安装板数；净收益 = 结算收入 − 初装费（未扣自身施工/物料成本）。</p>
+    <p class="note" style="margin:12px 0 0">注：结算收入 = 结算价 × 装机容量；代理商利润 = 结算收入 − 自身施工/物料成本（未细算）。</p>
   </section>
 
   <footer class="foot">
@@ -412,12 +410,12 @@
     var priceA      = val('priceA');
     var ratioB      = val('ratioB');
     var marketPrice = val('marketPrice');
+    var installFee  = val('installFee');
     var rentPanel   = val('rentPerPanel');
     var fullXiao    = val('fullXiao');
     var fullYue     = val('fullYue');
     var loanXiao    = val('loanXiao');
     var loanYue     = val('loanYue');
-    var installFee  = val('installFee'); // 初装费 元/块
 
     /* 核心换算 */
     var capacityW  = power * count;              // W
@@ -448,7 +446,8 @@
         '<span class="stat-sub">≈ ' + wan(totalB) + '元</span></div>';
 
     /* ===== 模式对比 ===== */
-    var leaseNet = rentPanel * count * years;
+    // 传统租赁净收益 = 租金收入 + 初装费总额（初装费单价 × 安装板数）
+    var leaseNet = rentPanel * count * years + installFee * count;
     var modes = [];
 
     modes.push({
@@ -457,7 +456,7 @@
       priceTxt: rentPanel + ' 元/块·年',
       netA: leaseNet,
       netB: leaseNet,
-      note: '每块 ' + rentPanel + ' 元/年租金；初装费50元/块由代理商支出'
+      note: '每块 ' + rentPanel + ' 元/年租金；初装费 ' + installFee + ' 元/块由代理商支出（已计入农户收益）'
     });
 
     function makeFull(label, pricePerW) {
@@ -537,8 +536,7 @@
     });
     $('loanBody').innerHTML = loanRows.join('');
 
-    /* ===== 代理商收益（增加初装费扣除） ===== */
-    var totalInstallFee = installFee * count; // 总初装费 = 初装费单价 × 安装板数
+    /* ===== 代理商收益（恢复原样，不扣初装费） ===== */
     var agents = [
       { label: '户用 · 小阳楼', id: 'agLeaseXiao' },
       { label: '户用 · 小阳楼（公共资源）', id: 'agLeaseXiaoPub' },
@@ -548,14 +546,10 @@
     ];
     $('agentBody').innerHTML = agents.map(function (a) {
       var p = val(a.id);
-      var settleIncome = p * capacityW;          // 结算收入
-      var netAgent = settleIncome - totalInstallFee; // 扣除初装费后的净收益
       return '<tr>' +
         '<td class="name">' + a.label + '</td>' +
         '<td class="num" data-label="结算价（元/W）">' + p.toFixed(2) + '</td>' +
-        '<td class="num" data-label="结算收入（单户）">' + n0(settleIncome) + ' 元</td>' +
-        '<td class="num" data-label="初装费（总）">' + n0(totalInstallFee) + ' 元</td>' +
-        '<td class="num net" data-label="净收益（扣初装费）">' + n0(netAgent) + ' 元</td>' +
+        '<td class="num net" data-label="结算收入（单户）">' + n0(p * capacityW) + ' 元</td>' +
       '</tr>';
     }).join('');
 
